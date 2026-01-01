@@ -7,6 +7,7 @@ import { inngest, functions } from "./lib/inngest.js";
 import { clerkMiddleware } from '@clerk/express';
 import { ApiResponse } from "../src/utils/ApiResponse.js"
 import chatRoutes from "./routes/chatRoutes.js"
+import sessionRoutes from "./routes/sessionRoutes.js";
 // import { protectRoute } from "./middlewares/protectRoute.js";
 
 dotenv.config({
@@ -34,6 +35,7 @@ app.use("/api/inngest", serve({
     functions
 }));
 app.use("/api/chat", chatRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 app.get("/health", (req,res) => {
     res.status(200).json(
