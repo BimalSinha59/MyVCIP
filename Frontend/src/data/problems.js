@@ -33,38 +33,43 @@ export const PROBLEMS = {
             "Only one valid answer exists",
         ],
         starterCode: {
-            javascript: `function twoSum(nums, target) {
-            // Write your solution here
-            
-            }
+            javascript: //for good formatting on code editor
+`function twoSum(nums, target) {
+// Write your solution here
 
-            // Test cases
-            console.log(twoSum([2, 7, 11, 15], 9)); // Expected: [0, 1]
-            console.log(twoSum([3, 2, 4], 6)); // Expected: [1, 2]
-            console.log(twoSum([3, 3], 6)); // Expected: [0, 1]`,
-            python: `def twoSum(nums, target):
-            # Write your solution here
-            pass
+}
 
-            # Test cases
-            print(twoSum([2, 7, 11, 15], 9))  # Expected: [0, 1]
-            print(twoSum([3, 2, 4], 6))  # Expected: [1, 2]
-            print(twoSum([3, 3], 6))  # Expected: [0, 1]`,
-            java: `import java.util.*;
+// Test cases
+console.log(twoSum([2, 7, 11, 15], 9)); // Expected: [0, 1]
+console.log(twoSum([3, 2, 4], 6)); // Expected: [1, 2]
+console.log(twoSum([3, 3], 6)); // Expected: [0, 1]`,
 
-            class Solution {
-                public static int[] twoSum(int[] nums, int target) {
-                    // Write your solution here
-                    
-                    return new int[0];
-                }
-                
-                public static void main(String[] args) {
-                    System.out.println(Arrays.toString(twoSum(new int[]{2, 7, 11, 15}, 9))); // Expected: [0, 1]
-                    System.out.println(Arrays.toString(twoSum(new int[]{3, 2, 4}, 6))); // Expected: [1, 2]
-                    System.out.println(Arrays.toString(twoSum(new int[]{3, 3}, 6))); // Expected: [0, 1]
-                }
-            }`,
+            python: 
+`def twoSum(nums, target):
+# Write your solution here
+pass
+
+# Test cases
+print(twoSum([2, 7, 11, 15], 9))  # Expected: [0, 1]
+print(twoSum([3, 2, 4], 6))  # Expected: [1, 2]
+print(twoSum([3, 3], 6))  # Expected: [0, 1]`,
+
+            java: 
+`import java.util.*;
+
+class Solution {
+    public static int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        
+        return new int[0];
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(Arrays.toString(twoSum(new int[]{2, 7, 11, 15}, 9))); // Expected: [0, 1]
+        System.out.println(Arrays.toString(twoSum(new int[]{3, 2, 4}, 6))); // Expected: [1, 2]
+        System.out.println(Arrays.toString(twoSum(new int[]{3, 3}, 6))); // Expected: [0, 1]
+    }
+}`,
         },
         expectedOutput: {
             javascript: "[0,1]\n[1,2]\n[0,1]",
