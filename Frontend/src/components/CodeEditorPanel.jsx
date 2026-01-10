@@ -11,9 +11,9 @@ function CodeEditorPanel({
     onRunCode,
 }) {
     return (
-        <div className="h-full bg-base-300 flex flex-col">
-            <div className="flex items-center justify-between px-4 
-            py-3 bg-base-100 border-t border-base-300">
+        <div className="h-full bg-base-300 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between 
+            px-4 py-3 bg-base-100 border-t border-base-300 shrink-0">
                 <div className="flex items-center gap-3">
                     <img
                         src={LANGUAGE_CONFIG[selectedLanguage].icon}
@@ -52,7 +52,7 @@ function CodeEditorPanel({
                 </button>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
                 <Editor
                     height={"100%"}
                     language={LANGUAGE_CONFIG[selectedLanguage].monacoLang}
