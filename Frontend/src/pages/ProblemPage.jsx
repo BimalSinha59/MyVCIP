@@ -1,36 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from "react-router"
-import { PROBLEMS } from "../data/problems.js"
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { PROBLEMS } from "../data/problems.js";
 import Navbar from "../components/Navbar";
-import ProblemDescription from "../components/ProblemDescription"
-import CodeEditorPanel from "../components/CodeEditorPanel"
-import OutputPanel from "../components/OutputPanel"
+import ProblemDescription from "../components/ProblemDescription";
+import CodeEditorPanel from "../components/CodeEditorPanel";
+import OutputPanel from "../components/OutputPanel";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { executeCode } from "../lib/piston.js"
-import toast from "react-hot-toast"
-import confetti from "canvas-confetti"
+import { executeCode } from "../lib/piston.js";
+import toast from "react-hot-toast";
+import confetti from "canvas-confetti";
 
 function ProblemPage() {
-
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [currentProblemId, setCurrentProbelmId] = useState("two-sum");
+    const [currentProblemId, setCurrentProblemId] = useState("two-sum");
     const [selectedLanguage, setSelectedLanguage] = useState("javascript");
-    const [code, setCode] = useState(PROBLEMS[currentProblemId].starterCode.javascript);
+    const [code, setCode] = useState(
+        PROBLEMS[currentProblemId].starterCode.javascript
+    );
     const [output, setOutput] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
-    
+
     const currentProblem = PROBLEMS[currentProblemId];
 
-    //update problem when URL param changes
+    // update problem when URL param changes
     useEffect(() => {
-        if(id && PROBLEMS[id]){
-            setCurrentProbelmId(id)
-            setCode(PROBLEMS[id].starterCode[selectedLanguage])
-            setOutput(null)
+        if (id && PROBLEMS[id]) {
+            setCurrentProblemId(id);
+            setCode(PROBLEMS[id].starterCode[selectedLanguage]);
+            setOutput(null);
         }
     }, [id, selectedLanguage]);
 
@@ -41,7 +42,8 @@ function ProblemPage() {
         setOutput(null);
     };
 
-    const handleProblemChange = (newProblemId) => navigate(`/problem/${newProblemId}`);
+    const handleProblemChange = (newProblemId) =>
+        navigate(`/problem/${newProblemId}`);
 
     const triggerConfetti = () => {
         confetti({
@@ -58,21 +60,19 @@ function ProblemPage() {
     };
 
     const normalizeOutput = (output) => {
-        // normalize output for comparison (trim whitespace, handle different spacing)
+        // normalize output for comparison
         return output
-        .trim()
-        .split("\n")
-        .map((line) =>
-            line
             .trim()
-            // remove spaces after [ and before ]
-            .replace(/\[\s+/g, "[")
-            .replace(/\s+\]/g, "]")
-            // normalize spaces around commas to single space after comma
-            .replace(/\s*,\s*/g, ",")
-        )
-        .filter((line) => line.length > 0)
-        .join("\n");
+            .split("\n")
+            .map((line) =>
+                line
+                    .trim()
+                    .replace(/\[\s+/g, "[")
+                    .replace(/\s+\]/g, "]")
+                    .replace(/\s*,\s*/g, ",")
+            )
+            .filter((line) => line.length > 0)
+            .join("\n");
     };
 
     const checkIfTestsPassed = (actualOutput, expectedOutput) => {
@@ -83,95 +83,85 @@ function ProblemPage() {
     };
 
     const handleRunCode = async () => {
-        setIsRunning(true)
-        setOutput(null)
+        setIsRunning(true);
+        setOutput(null);
 
-        const result = await executeCode(selectedLanguage, code)
-        setOutput(result)
-        setIsRunning(false)
+        const result = await executeCode(selectedLanguage, code);
+        setOutput(result);
+        setIsRunning(false);
 
-        // check if code executed successfully and matches expected output
+        if (result.success) {
+            const expectedOutput =
+                currentProblem.expectedOutput[selectedLanguage];
+            const testsPassed = checkIfTestsPassed(
+                result.output,
+                expectedOutput
+            );
 
-        if(result.success) {
-            const expectedOutput = currentProblem.expectedOutput[selectedLanguage]
-            const testsPassed = checkIfTestsPassed(result.output, expectedOutput)
-
-            if(testsPassed){
+            if (testsPassed) {
                 triggerConfetti();
-                toast.success("All tests passed! Great job!")
+                toast.success("All tests passed! Great job!");
+            } else {
+                toast.error("Tests failed. Check your output");
             }
-            else{
-                toast.error("Tests failed. Check your output")
-            }
-        }
-        else{
-            toast.error("Code execution failed!")
+        } else {
+            toast.error("Code execution failed!");
         }
     };
 
     return (
-        <div className='h-screen bg-base-100 flex flex-col'>
+        <div className="h-screen bg-base-100 flex flex-col overflow-hidden">
             <Navbar />
 
-            <div className='flex-1'>
-                <PanelGroup direction='horizontal'>
-                    <Panel defaultSize={40} minSize={30} className='h-screen'> 
-                        {/* left panel-problem desc */}
-                        <ProblemDescription
-                            problem = {currentProblem}
-                            currentProblemId = {currentProblemId}
-                            onProblemChange = {handleProblemChange}
-                            allProblems = {Object.values(PROBLEMS)}
-                        />
+            <div className="flex-1 overflow-hidden">
+                <PanelGroup direction="horizontal">
+
+                    {/* LEFT PANEL: Problem Description */}
+                    <Panel defaultSize={40} minSize={30}>
+                        <div className="h-full overflow-y-auto border-r border-base-300">
+                            <ProblemDescription
+                                problem={currentProblem}
+                                currentProblemId={currentProblemId}
+                                onProblemChange={handleProblemChange}
+                                allProblems={Object.values(PROBLEMS)}
+                            />
+                        </div>
                     </Panel>
 
-                    <PanelResizeHandle className='group w-2 bg-base-300 
-                    transition-colors cursor-col-resize flex 
-                    justify-center items-center'
-                    >
-                        {/* The thin vertical inner line */}
-                        <div className="w-[2px] h-full bg-transparent 
-                        transition-colors group-hover:bg-blue-500" />
-                    </PanelResizeHandle>
+                    <PanelResizeHandle className="w-1 bg-base-300 hover:bg-blue-500 transition-all duration-300" />
 
-
-                    {/* right panel - code editor & output */}
+                    {/* RIGHT PANEL: Editor & Output Group */}
                     <Panel defaultSize={60} minSize={30}>
-                        <PanelGroup direction='vertical'>
+                        <PanelGroup direction="vertical">
 
-                            {/* Top panel - Code editor */}
-                            <Panel defaultSize={70} minSize={30}>
-                                <CodeEditorPanel
-                                    selectedLanguage={selectedLanguage}
-                                    code={code}
-                                    isRunning={isRunning}
-                                    onLanguageChange={handleLanguageChange}
-                                    onCodeChange={setCode}
-                                    onRunCode={handleRunCode}
-                                />
+                            {/* TOP RIGHT: Editor Panel */}
+                            <Panel defaultSize={70} minSize={20}>
+                                <div className="h-full flex flex-col overflow-hidden">
+                                    <CodeEditorPanel
+                                        selectedLanguage={selectedLanguage}
+                                        code={code}
+                                        isRunning={isRunning}
+                                        onLanguageChange={handleLanguageChange}
+                                        onCodeChange={setCode}
+                                        onRunCode={handleRunCode}
+                                    />
+                                </div>
                             </Panel>
 
-                            <PanelResizeHandle className='group h-2 bg-base-300 
-                            transition-colors cursor-row-resize flex items-center
-                            justify-center'
-                            >
-                                {/* The thin inner line */}
-                                <div className="h-[2px] w-full bg-transparent 
-                                transition-colors group-hover:bg-blue-500" />
-                            </PanelResizeHandle>
+                            <PanelResizeHandle className="h-1 bg-base-300 hover:bg-blue-500 transition-all duration-300" />
 
-
-                            {/* Bottom panel - output panel */}
-                            <Panel defaultSize={30} minSize={20}>
-                                <OutputPanel output={output} />
+                            {/* BOTTOM RIGHT: Output Panel */}
+                            <Panel defaultSize={30} minSize={10}>
+                                <div className="h-full overflow-hidden flex flex-col bg-base-200">
+                                    <OutputPanel output={output} />
+                                </div>
                             </Panel>
                         </PanelGroup>
                     </Panel>
                 </PanelGroup>
-
             </div>
         </div>
-    )
+    );
 }
 
-export default ProblemPage
+export default ProblemPage;
