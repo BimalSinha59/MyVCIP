@@ -36,7 +36,7 @@ function CreateSessionModal({
                             value={roomConfig.problem}
                             onChange={(e) => {
                                 const selectedProblem = problems.find(
-                                    (p) => p.title === e.target.value
+                                    (p) => p.id === e.target.value
                                 );
                                 setRoomConfig({
                                     difficulty: selectedProblem.difficulty,
@@ -49,7 +49,7 @@ function CreateSessionModal({
                             </option>
 
                             {problems.map((problem) => (
-                                <option key={problem.id} value={problem.title}>
+                                <option key={problem.id} value={problem.id}>
                                     {problem.title} ({problem.difficulty})
                                 </option>
                             ))}

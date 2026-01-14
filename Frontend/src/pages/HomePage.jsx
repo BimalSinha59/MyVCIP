@@ -104,7 +104,7 @@ function HomePage() {
 
                     {/* RIGHT IMAGE */}
                     <img
-                        src="."
+                        src="/hero.png"
                         alt="video-call-iview-pf"
                         className="w-full h-auto rounded-3xl shadow-2xl border-4 border-base-100
                         hover:scale-105 transition-transform duration-500"
