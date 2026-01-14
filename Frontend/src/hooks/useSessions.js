@@ -1,67 +1,83 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sessionApi } from "../api/sessions.js";
 
+// --- MUTATIONS ---
+
 export const useCreateSession = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationKey: ["createSession"],
-        mutationFn: sessionApi.createSession,
+        // We unwrap response.data so the component gets the clean object
+        mutationFn: async (payload) => {
+            const response = await sessionApi.createSession(payload);
+            return response.data; 
+        },
+        onSuccess: () => {
+            // Automatically refresh the active sessions list after creating one
+            queryClient.invalidateQueries({ queryKey: ["activeSessions"] });
+        },
     });
-};
-
-export const useActiveSessions = () => {
-    const result = useQuery({
-        queryKey: ["activeSessions"],
-        queryFn: sessionApi.getActiveSessions,
-    });
-
-    return result;
-};
-
-export const useMyRecentSessions = () => {
-    const result = useQuery({
-        queryKey: ["myRecentSessions"],
-        queryFn: sessionApi.getMyRecentSessions,
-    });
-
-    return result;
-};
-
-export const useSessionById = (id) => {
-    const result = useQuery({
-        queryKey: ["session", id],
-        queryFn: () => sessionApi.getSessionById(id),
-        enabled: !!id,
-        refetchInterval: 5000, // refetch every 5 seconds to detect session status changes
-    });
-
-    return result;
 };
 
 export const useJoinSession = () => {
-    const result = useMutation({
+    const queryClient = useQueryClient();
+    return useMutation({
         mutationKey: ["joinSession"],
-        mutationFn: sessionApi.joinSession,
-        onSuccess: () => toast.success("Joined session successfully!"),
-        onError: (error) =>
-            toast.error(
-                error.response?.data?.message || "Failed to join session"
-            ),
+        mutationFn: async (sessionId) => {
+            const response = await sessionApi.joinSession(sessionId);
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["activeSessions"] });
+        },
     });
-
-    return result;
 };
 
 export const useEndSession = () => {
-    const result = useMutation({
+    const queryClient = useQueryClient();
+    return useMutation({
         mutationKey: ["endSession"],
-        mutationFn: sessionApi.endSession,
-        onSuccess: () => toast.success("Session ended successfully!"),
-        onError: (error) =>
-            toast.error(
-                error.response?.data?.message || "Failed to end session"
-            ),
+        mutationFn: async (sessionId) => {
+            const response = await sessionApi.endSession(sessionId);
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["activeSessions"] });
+            queryClient.invalidateQueries({ queryKey: ["myRecentSessions"] });
+        },
     });
+};
 
-    return result;
+// --- QUERIES ---
+
+export const useActiveSessions = () => {
+    return useQuery({
+        queryKey: ["activeSessions"],
+        queryFn: async () => {
+            const response = await sessionApi.getActiveSessions();
+            return response.data;
+        },
+    });
+};
+
+export const useMyRecentSessions = () => {
+    return useQuery({
+        queryKey: ["myRecentSessions"],
+        queryFn: async () => {
+            const response = await sessionApi.getMyRecentSessions();
+            return response.data;
+        },
+    });
+};
+
+export const useSessionById = (id) => {
+    return useQuery({
+        queryKey: ["session", id],
+        queryFn: async () => {
+            const response = await sessionApi.getSessionById(id);
+            return response.data;
+        },
+        enabled: !!id,
+        refetchInterval: 5000, 
+    });
 };

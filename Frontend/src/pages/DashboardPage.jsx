@@ -37,7 +37,6 @@ function DashboardPage() {
         isLoading: loadingRecentSessions,
     } = useMyRecentSessions();
 
-
     const handleCreateRoom = () => {
         if (!roomConfig.problem || !roomConfig.difficulty) return;
 
@@ -47,15 +46,16 @@ function DashboardPage() {
                 difficulty: roomConfig.difficulty.toLowerCase(),
             },
             {
-                onSuccess: (response) => {
-                    const sessionId = response?.data?.session?._id;
+                onSuccess: (data) => {
+                    const sessionId = data?.data?.session?._id || data?.session?._id || data?.id;
+
                     if (sessionId) {
                         setShowCreateModal(false);
                         toast.success("Session created successfully!");
                         navigate(`/session/${sessionId}`);
                     } else {
-                        console.error("Path failed. Full object:", response);
-                        toast.error("Created, but ID path is incorrect.");
+                        console.error("Failed to extract sessionId from:", data);
+                        toast.error("Session created, but ID not found.");
                     }
                 },
                 onError: (error) => {
@@ -64,11 +64,12 @@ function DashboardPage() {
             }
         );
     };
-    const activeSessions = activeSessionsData?.sessions || [];
-    const recentSessions = recentSessionsData?.sessions || [];
+
+    const activeSessions = activeSessionsData?.data?.sessions || [];
+    const recentSessions = recentSessionsData?.data?.sessions || [];
 
     const isUserInSession = (session) => {
-        if (!user.id) return false;
+        if (!user?.id) return false;
 
         return (
             session.host?.clerkId === user.id ||

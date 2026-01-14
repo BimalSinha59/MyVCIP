@@ -4,9 +4,10 @@ import './index.css'
 import App from './App.jsx'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { BrowserRouter } from 'react-router'
+
 import {
-  QueryClient,
-  QueryClientProvider,
+    QueryClient,
+    QueryClientProvider,
 } from '@tanstack/react-query'
 
 
