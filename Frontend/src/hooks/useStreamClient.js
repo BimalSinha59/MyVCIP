@@ -6,6 +6,7 @@ import {
     initializeStreamClient,
     disconnectStreamClient,
 } from "../lib/stream";
+
 import { sessionApi } from "../api/sessions";
 
 function useStreamClient(
@@ -23,9 +24,10 @@ function useStreamClient(
     useEffect(() => {
         let videoCall = null;
         let chatClientInstance = null;
+        let isActive = true; 
 
         const initCall = async () => {
-            if (!session?.callId) return;
+            if (!session?.callId || !isActive) return;
 
             if (!isHost && !isParticipant) {
                 setIsInitializingCall(false);
@@ -39,64 +41,56 @@ function useStreamClient(
 
             try {
                 const response = await sessionApi.getStreamToken();
-
                 const result = response.data?.data || response.data || response;
 
-                const {
-                    token,
-                    userId,
-                    userName,
-                    userImage,
-                } = result;
+                const { token, userId, userName, userImage } = result;
 
-                console.log("STREAM RELOADED:", {
-                    userId,
-                    token: token ? "Received" : "Missing"
-                });
-
+                // 1. Initialize Video Client
                 const client = await initializeStreamClient(
-                    {
-                        id: userId,
-                        name: userName,
-                        image: userImage,
-                    },
+                    { id: userId, name: userName, image: userImage },
                     token
                 );
-
+                
+                if (!isActive) return;
                 setStreamClient(client);
 
+                // 2. Join Video Call
                 videoCall = client.call("default", session.callId);
-
                 await videoCall.join({ create: isHost });
+                
+                if (!isActive) {
+                    await videoCall.leave().catch(() => {});
+                    return;
+                }
                 setCall(videoCall);
 
+                // 3. Initialize Chat Client
                 const apiKey = import.meta.env.VITE_STREAM_API_KEY;
-
                 chatClientInstance = StreamChat.getInstance(apiKey);
 
                 await chatClientInstance.connectUser(
-                    {
-                        id: userId,
-                        name: userName,
-                        image: userImage,
-                    },
+                    { id: userId, name: userName, image: userImage },
                     token
                 );
 
+                if (!isActive) {
+                    await chatClientInstance.disconnectUser();
+                    return;
+                }
                 setChatClient(chatClientInstance);
 
-                const chatChannel = chatClientInstance.channel(
-                    "messaging",
-                    session.callId
-                );
-
+                // 4. Watch Chat Channel
+                const chatChannel = chatClientInstance.channel("messaging", session.callId);
                 await chatChannel.watch();
+                
+                if (!isActive) return;
                 setChannel(chatChannel);
+
             } catch (error) {
-                toast.error("Failed to join video call");
                 console.error("Error init call:", error);
+                toast.error("Failed to join video call");
             } finally {
-                setIsInitializingCall(false);
+                if (isActive) setIsInitializingCall(false);
             }
         };
 
@@ -105,21 +99,28 @@ function useStreamClient(
         }
 
         return () => {
-            (async () => {
+            isActive = false;
+            
+            const cleanup = async () => {
                 try {
                     if (videoCall) {
-                        await videoCall.leave();
+                        if (videoCall.state.status !== 'left') {
+                            await videoCall.leave();
+                        }
                     }
-
                     if (chatClientInstance) {
                         await chatClientInstance.disconnectUser();
                     }
 
                     await disconnectStreamClient();
                 } catch (error) {
-                    console.error("Cleanup error:", error);
+                    if (!error.message?.includes("already been left")) {
+                        console.error("Cleanup error:", error);
+                    }
                 }
-            })();
+            };
+
+            cleanup();
         };
     }, [session, loadingSession, isHost, isParticipant]);
 

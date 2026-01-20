@@ -65,8 +65,9 @@ function DashboardPage() {
         );
     };
 
-    const activeSessions = activeSessionsData?.data?.sessions || [];
-    const recentSessions = recentSessionsData?.data?.sessions || [];
+    const activeSessions = activeSessionsData?.sessions || [];
+    const recentSessions = recentSessionsData?.sessions || [];
+    // console.log(activeSessionsData?.sessions);
 
     const isUserInSession = (session) => {
         if (!user?.id) return false;
