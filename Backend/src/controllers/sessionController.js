@@ -166,12 +166,12 @@ const endSession = asyncHandler( async (req, res) => {
 
     // check if session is already completed
     if(session.status === "completed"){
-        throw new ApiError(404, "Session is already completed");
+        throw new ApiError(400, "Session is already completed");
     }
 
     // delete stream video call
     const call = streamClient.video.call("default", session.callId);
-    await call.delete();
+    await call.delete({ hard: true });
 
     // delete stream chat channel
     const channel = chatClient.channel("messaging", session.callId);
