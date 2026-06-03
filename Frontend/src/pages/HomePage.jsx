@@ -65,7 +65,7 @@ function HomePage() {
 
                         <p className="text-xl text-base-content/70 leading-relaxed max-w-xl">
                             The ultimate plateform for coding interview and pair programming.
-                            Connect face-to-face, code in real-time, and your technical interviews.
+                            Connect face-to-face, code in real-time, and ace your next pair-programming session.
                         </p>
 
                         {/* FEATURE PILLS */}
@@ -86,7 +86,7 @@ function HomePage() {
                             </div>
                         </div>
 
-                        {/* CTA Buttons */}
+                        {/* CTA Button */}
                         <div className="flex flex-wrap gap-4">
                             <SignInButton mode="modal">
                                 <button className="btn btn-primary btn-lg">
@@ -94,11 +94,6 @@ function HomePage() {
                                     <ArrowRightIcon className="size-5"/>
                                 </button>
                             </SignInButton>
-
-                            <button className="btn btn-outline btn-lg">
-                                <VideoIcon className="size-5"/>
-                                Watch Demo
-                            </button>
                         </div>
                     </div>
 

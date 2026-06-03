@@ -4,7 +4,7 @@ import { app } from "./app.js";
 
 dotenv.config({
     path: './.env',
-    quiet:true // does not show the env var information on terminal
+    quiet:true 
 })
 
 connectDB()

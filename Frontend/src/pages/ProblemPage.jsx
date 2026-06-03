@@ -8,7 +8,7 @@ import OutputPanel from "../components/OutputPanel";
 
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { executeCode } from "../lib/piston.js";
+import { executeCode } from "../lib/codeExecution.js";
 import toast from "react-hot-toast";
 import confetti from "canvas-confetti";
 

@@ -8,11 +8,11 @@ import { clerkMiddleware } from '@clerk/express';
 import { ApiResponse } from "../src/utils/ApiResponse.js"
 import chatRoutes from "./routes/chatRoutes.js"
 import sessionRoutes from "./routes/sessionRoutes.js";
-// import { protectRoute } from "./middlewares/protectRoute.js";
+import compilerRouter from './routes/compiler.js';
 
 dotenv.config({
     path: './.env',
-    quiet:true // does not show the env variable information on terminal
+    quiet:true
 })
 
 const app = express();
@@ -30,28 +30,19 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}));
 app.use(express.static("public"));
 app.use(clerkMiddleware()); //=> this adds auth field to request object: req.auth()
 
-app.use("/api/inngest", serve({
-    client: inngest,
-    functions
-}));
-app.use("/api/chat", chatRoutes);
-app.use("/api/sessions", sessionRoutes);
-
 app.get("/health", (req,res) => {
     res.status(200).json(
         new ApiResponse(200, {}, "api is up and running")
     )
 })
 
-/*when we pass an array of middleware to express, it automatically flattens
-executes them sequentially, one by one.
-
-app.get("/video-calls", protectRoute, (req, res) => {
-    res.status(200).json(
-        new ApiResponse(200, "this is a protected route")
-    )
-})
-*/
+app.use("/api/inngest", serve({
+    client: inngest,
+    functions
+}));
+app.use("/api/chat", chatRoutes);
+app.use("/api/sessions", sessionRoutes);
+app.use('/api', compilerRouter);
 
 //make our app ready for production
 
