@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js"
 
 export const protectRoute = [
-    requireAuth(), //=> here we can also use { signInUrl: "/sign-in"} as parameter to redirect sign-in page
+    requireAuth(),
     async (req, res, next) => {
         try {
             const clerkId = req.auth().userId;
